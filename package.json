@@ -2,6 +2,7 @@
   "name": "boniu-w-github-io",
   "private": true,
   "version": "1.0.0",
+  "homepage": "https://boniu-w.github.io",
   "type": "module",
   "scripts": {
     "dev": "vite",
