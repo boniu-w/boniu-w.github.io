@@ -31,7 +31,7 @@ function Home() {
         {tiles.map((tile, index) => (
           <article key={index} className={tile.style}>
             <span className="image">
-              <img src={tile.image} alt="" />
+              <img src={tile.image} alt={`${tile.title} - ${tile.desc}`} />
             </span>
             <Link to={tile.link}>
               <h2>{tile.title}</h2>

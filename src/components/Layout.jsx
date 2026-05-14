@@ -19,6 +19,16 @@ function Layout() {
     document.body.classList.remove('is-menu-visible')
   }
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && menuOpen) {
+        closeMenu()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [menuOpen])
+
   return (
     <div id="wrapper">
       <header id="header">
@@ -29,18 +39,43 @@ function Layout() {
           </Link>
           <nav>
             <ul>
-              <li><a href="#menu" onClick={(e) => { e.preventDefault(); toggleMenu(); }}>Menu</a></li>
+              <li>
+                <a 
+                  href="#menu" 
+                  aria-expanded={menuOpen}
+                  aria-controls="menu"
+                  onClick={(e) => { e.preventDefault(); toggleMenu(); }}
+                >
+                  Menu
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
       </header>
 
-      <nav id="menu" className={menuOpen ? 'visible' : ''}>
+      {menuOpen && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 10001
+          }}
+          onClick={closeMenu}
+        />
+      )}
+
+      <nav id="menu" className={menuOpen ? 'visible' : ''} aria-hidden={!menuOpen}>
         <h2>Menu</h2>
         <ul>
           <li><Link to="/" onClick={closeMenu}>Home</Link></li>
           <li><Link to="/essay" onClick={closeMenu}>我的文章</Link></li>
           <li><Link to="/album" onClick={closeMenu}>我的相册</Link></li>
+          <li><Link to="/generic" onClick={closeMenu}>我的视频</Link></li>
           <li><Link to="/collection" onClick={closeMenu}>我的收藏</Link></li>
         </ul>
       </nav>
