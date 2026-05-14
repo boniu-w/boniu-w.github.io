@@ -1,34 +1,19 @@
+# Dependencies
 node_modules
-.DS_Store
+
+# Build output
 dist
-.npmrc
-.cache
+dist-ssr
 
-tests/server/static
-tests/server/static/upload
-
-.local
-# local env files
-.env.local
-.env.*.local
-.eslintcache
-
-# Log files
+# Logs
+*.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
-# Editor directories and files
+# Editor
+.vscode/*
+!.vscode/extensions.json
 .idea
-.idea/*
-# .vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 
-package-lock.json
-pnpm-lock.yaml
-
+# OS
+.DS_Store
+Thumbs.db
