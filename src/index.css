@@ -1,3 +1,26 @@
 /* CSS reset and base styles */
 @import './assets/css/main.css';
 @import './assets/css/noscript.css';
+
+/* Move page content up */
+#main {
+    padding-top: 0em;
+}
+
+/* Title closer to top */
+.inner>header h1 {
+    padding-top: 0;
+}
+
+/* Page background with black horizontal lines */
+body {
+    /* background-image: repeating-linear-gradient(
+    0deg,
+    #000 0px,
+    #000 1px,
+    transparent 1px,
+    transparent 180px
+  ); */
+    /* background-image: url('/images/picture/上云下路.jpg'); */
+    background-color: #f6f6f6;
+}

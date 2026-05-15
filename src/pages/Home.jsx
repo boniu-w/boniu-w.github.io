@@ -18,12 +18,12 @@ const tiles = [
 function Home() {
   return (
     <div className="inner">
-      <header>
-        <h1>
+      <header style={{ backgroundImage: 'url(/images/picture/微信图片_20250306093659.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <h1 style={{ color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)', paddingLeft: '0.3em', paddingTop: '0.3em' }}>
           欢迎来到 公子求雨 的个人站点<br />
           enjoy yourself
         </h1>
-        <p>
+        <p style={{ color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)', paddingLeft: '0.7em' }}>
           拉萨不在拉萨, 拉萨在路上 - Lhasa is not in Lhasa, Lhasa is on the way
         </p>
       </header>
