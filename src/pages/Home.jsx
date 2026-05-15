@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 
 const tiles = [
-  { style: 'style1', image: '/images/pic01.jpg', title: '我的文章', desc: '露坠荷叶碎成星', link: '/essay' },
-  { style: 'style2', image: '/images/pic02.jpg', title: '我的相册', desc: '风过松林叠作鸣', link: '/album' },
-  { style: 'style3', image: '/images/pic03.jpg', title: '我的视频', desc: '蛛丝缠尽飞虫影', link: '/generic' },
-  { style: 'style4', image: '/images/pic04.jpg', title: '我的收藏', desc: '浮萍聚散总无名', link: '/collection' },
+  { style: 'style1', image: '/images/picture/微信图片_20250306093738.jpg', title: '我的文章', desc: '露坠荷叶碎成星', link: '/essay' },
+  { style: 'style2', image: '/images/picture/上云下路-大一点.jpg', title: '我的相册', desc: '风过松林叠作鸣', link: '/album' },
+  { style: 'style3', image: '/images/picture/2de3aca9b9ae59bce263742ccb4ac70045950e835ae2aa9d2a3821b68a407eac.jfif', title: '我的视频', desc: '蛛丝缠尽飞虫影', link: '/generic' },
+  { style: 'style4', image: '/images/收藏.svg', title: '我的收藏', desc: '浮萍聚散总无名', link: '/collection' },
   { style: 'style5', image: '/images/pic05.jpg', title: 'Aliquam', desc: '花开见佛佛非相', link: '/generic' },
   { style: 'style6', image: '/images/pic06.jpg', title: 'Veroeros', desc: '叶落归尘尘是空', link: '/generic' },
   { style: 'style2', image: '/images/pic07.jpg', title: 'Ipsum', desc: '三千世界水中月', link: '/generic' },
@@ -31,7 +31,12 @@ function Home() {
         {tiles.map((tile, index) => (
           <article key={index} className={tile.style}>
             <span className="image">
-              <img src={tile.image} alt={`${tile.title} - ${tile.desc}`} />
+              <img src={tile.image} alt={`${tile.title} - ${tile.desc}`}
+                style={{
+                  width: '100%',
+                  aspectRatio: '21 / 9',
+                  objectFit: 'cover'
+                }} />
             </span>
             <Link to={tile.link}>
               <h2>{tile.title}</h2>

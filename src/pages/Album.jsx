@@ -8,7 +8,17 @@ function Album() {
   return (
     <div className="inner">
       <h1>我的相册</h1>
-      <span className="image main"><img src="/images/pic13.jpg" alt="" /></span>
+      {/* <span className="image main">
+        <img
+          src="/images/banner/云路.png"
+          alt=""
+          style={{
+            width: '100%',
+            aspectRatio: '21 / 9',
+            objectFit: 'cover'
+          }}
+        />
+      </span> */}
       <div className="box alt">
         <div className="row gtr-uniform">
           {images.map((src, index) => (

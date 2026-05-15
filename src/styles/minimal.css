@@ -1,0 +1,269 @@
+/* 日本极简风格 - Japanese Minimalist Style */
+:root {
+  --bg-color: #faf9f7;
+  --text-color: #2c2c2c;
+  --accent-color: #8b7355;
+  --border-color: #e0ddd8;
+  --muted-color: #9a9a9a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiji", sans-serif;
+  line-height: 1.8;
+  letter-spacing: 0.05em;
+}
+
+/* Header */
+#header {
+  background: transparent;
+  padding: 60px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+#header .inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  text-decoration: none;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+}
+
+.logo .symbol {
+  display: none;
+}
+
+#header nav a {
+  color: var(--muted-color);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  transition: color 0.3s;
+}
+
+#header nav a:hover {
+  color: var(--text-color);
+}
+
+/* Main Content */
+#main {
+  min-height: calc(100vh - 200px);
+  padding: 80px 0;
+}
+
+.inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  letter-spacing: 0.08em;
+}
+
+header p {
+  color: var(--muted-color);
+  font-size: 0.95rem;
+  font-weight: 300;
+}
+
+/* Tiles */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 60px;
+  margin-top: 80px;
+}
+
+.tiles article {
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.tiles article .image {
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: var(--border-color);
+}
+
+.tiles article .image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(20%);
+  transition: filter 0.5s, transform 0.5s;
+}
+
+.tiles article:hover .image img {
+  filter: grayscale(0%);
+  transform: scale(1.02);
+}
+
+.tiles article h2 {
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.tiles article .content {
+  color: var(--muted-color);
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+/* Menu */
+#menu {
+  background: var(--bg-color);
+  padding: 60px 40px;
+  border-left: 1px solid var(--border-color);
+}
+
+#menu h2 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--muted-color);
+  margin-bottom: 30px;
+}
+
+#menu ul {
+  list-style: none;
+}
+
+#menu ul li {
+  margin-bottom: 20px;
+}
+
+#menu ul li a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  transition: color 0.3s;
+}
+
+#menu ul li a:hover {
+  color: var(--accent-color);
+}
+
+/* Footer */
+#footer {
+  background: transparent;
+  border-top: 1px solid var(--border-color);
+  padding: 60px 0;
+}
+
+#footer .inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+#footer h2 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--muted-color);
+  margin-bottom: 30px;
+}
+
+#footer form input,
+#footer form textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  padding: 15px 0;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-color);
+  transition: border-color 0.3s;
+}
+
+#footer form input:focus,
+#footer form textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+#footer form input::placeholder,
+#footer form textarea::placeholder {
+  color: var(--muted-color);
+}
+
+#footer ul.icons {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+#footer ul.icons li a {
+  color: var(--muted-color);
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+
+#footer ul.icons li a:hover {
+  color: var(--text-color);
+}
+
+#footer .copyright {
+  margin-top: 60px;
+  font-size: 0.75rem;
+  color: var(--muted-color);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+#footer .copyright li {
+  display: inline;
+  margin-right: 20px;
+}
+
+#footer .copyright a {
+  color: var(--muted-color);
+  text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tiles {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+  
+  .inner, #header .inner, #footer .inner {
+    padding: 0 24px;
+  }
+  
+  #menu {
+    padding: 40px 24px;
+  }
+}
