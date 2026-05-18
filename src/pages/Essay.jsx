@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Card, Input, Button, Pagination, Spin, Empty, Typography, Row, Col } from 'antd'
+import { Card, Input, Button, Pagination, Spin, Empty, Typography, Row, Col, DatePicker, Space } from 'antd'
+import dayjs from 'dayjs'
 
 const { Title, Text } = Typography
 
@@ -18,12 +19,18 @@ const mockArticles = [
   { id: 12, title: '大江东去', content: '大江东去，浪淘尽，千古风流人物。故垒西边，人道是，三国周郎赤壁。', date: '2025-05-23' },
 ]
 
-const fetchArticles = async (page = 1, pageSize = 5, searchDate = '') => {
+const fetchArticles = async (page = 1, pageSize = 5, keyword = '', searchDate = '') => {
   return new Promise((resolve) => {
     setTimeout(() => {
       let filtered = mockArticles
+      if (keyword) {
+        const lowerKeyword = keyword.toLowerCase()
+        filtered = filtered.filter(
+          a => a.title.toLowerCase().includes(lowerKeyword) || a.content.toLowerCase().includes(lowerKeyword)
+        )
+      }
       if (searchDate) {
-        filtered = mockArticles.filter(a => a.date.startsWith(searchDate))
+        filtered = filtered.filter(a => a.date.startsWith(searchDate))
       }
       const start = (page - 1) * pageSize
       const end = start + pageSize
@@ -32,7 +39,7 @@ const fetchArticles = async (page = 1, pageSize = 5, searchDate = '') => {
         total: filtered.length,
         totalPages: Math.ceil(filtered.length / pageSize)
       })
-    }, 300)
+    }, 200)
   })
 }
 
@@ -41,13 +48,14 @@ function Essay() {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [keyword, setKeyword] = useState('')
   const [searchDate, setSearchDate] = useState('')
 
   useEffect(() => {
     const loadArticles = async () => {
       setLoading(true)
       try {
-        const data = await fetchArticles(currentPage, 5, searchDate)
+        const data = await fetchArticles(currentPage, 5, keyword, searchDate)
         setArticles(data.list)
         setTotalPages(data.totalPages)
       } catch (error) {
@@ -57,7 +65,7 @@ function Essay() {
       }
     }
     loadArticles()
-  }, [currentPage, searchDate])
+  }, [currentPage, keyword, searchDate])
 
   const handlePageChange = (page) => {
     setCurrentPage(page)
@@ -72,15 +80,25 @@ function Essay() {
       </div>
 
       <div className="search-box">
-        <Input.Search
-          type="month"
-          placeholder="选择月份筛选"
-          value={searchDate}
-          onChange={(e) => { setSearchDate(e.target.value); setCurrentPage(1); }}
-          allowClear
-          onClear={() => { setSearchDate(''); setCurrentPage(1); }}
-          style={{ width: 220 }}
-        />
+        <Space className="search-space" size="middle">
+          <Input.Search
+            placeholder="输入标题或内容关键字"
+            allowClear
+            enterButton
+            onSearch={(value) => { setKeyword(value); setCurrentPage(1); }}
+            style={{ width: 300 }}
+          />
+          <DatePicker
+            picker="month"
+            placeholder="按月份筛选"
+            value={searchDate ? dayjs(searchDate, 'YYYY-MM') : null}
+            onChange={(date, dateString) => { 
+              setSearchDate(dateString || ''); 
+              setCurrentPage(1); 
+            }}
+            style={{ width: 160 }}
+          />
+        </Space>
       </div>
 
       <div className="essay-content">
@@ -91,21 +109,34 @@ function Essay() {
         ) : (
           <>
             {articles.length > 0 ? (
-              <Row gutter={[16, 16]}>
+              <Row gutter={[0, 16]}> {/* 消除左右间隙，统一上下间距 */}
                 {articles.map((article, index) => (
-                  <Col xs={24} key={article.id}>
+                  <Col span={24} key={article.id}>
                     <Card className="article-card" hoverable>
-                      <div className="card-index">{String(index + 1 + (currentPage - 1) * 5).padStart(2, '0')}</div>
-                      <div className="card-body">
-                        <div className="card-header">
-                          <Title level={4}>{article.title}</Title>
-                          <Button type="link" href={`/article/${article.id}`}>
-                            阅读全文 →
-                          </Button>
+                      <div className="card-wrapper">
+                        {/* 序号：改为雅致的边框刻度感 */}
+                        <div className="card-index">
+                          {String(index + 1 + (currentPage - 1) * 5).padStart(2, '0')}
                         </div>
-                        <Text className="card-text">{article.content}</Text>
-                        <div className="card-footer">
-                          <Text className="card-date">📆 {article.date}</Text>
+                        
+                        {/* 右侧核心内容区 */}
+                        <div className="card-body">
+                          <div className="card-header">
+                            <Title level={4} className="article-title">{article.title}</Title>
+                            <Button type="link" href={`/article/${article.id}`} className="read-more-btn">
+                              阅读全文 →
+                            </Button>
+                          </div>
+                          
+                          {/* 文本内容：单行截断，保持高度严整 */}
+                          <div className="card-text-container">
+                            <Text className="card-text">{article.content}</Text>
+                          </div>
+                          
+                          {/* 底部信息：绝对吸底对齐 */}
+                          <div className="card-footer">
+                            <Text className="card-date">📆 {article.date}</Text>
+                          </div>
                         </div>
                       </div>
                     </Card>
@@ -113,7 +144,7 @@ function Essay() {
                 ))}
               </Row>
             ) : (
-              <Empty description="暂无文章" />
+              <Empty description="暂无匹配文章" style={{ padding: '40px 0' }} />
             )}
 
             {totalPages > 1 && (
@@ -133,115 +164,189 @@ function Essay() {
 
       <style>{`
         .essay-page {
-          max-width: 900px;
+          max-width: 840px;
           margin: 0 auto;
+          padding: 20px;
         }
         .page-header {
           text-align: center;
-          padding: 40px 20px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-          border-radius: 12px;
+          padding: 32px 0;
           margin-bottom: 24px;
-          border: 1px solid rgba(255,255,255,0.1);
         }
         .page-title {
           color: #4ecdc4 !important;
           margin-bottom: 8px !important;
+          font-weight: 600 !important;
+          letter-spacing: 1px;
         }
         .page-subtitle {
-          color: #888 !important;
+          color: #666 !important;
+          font-size: 14px;
         }
         .search-box {
           display: flex;
-          justify-content: center;
-          padding: 20px;
-          background: rgba(255,255,255,0.03);
-          border-radius: 12px;
-          margin-bottom: 24px;
-          border: 1px solid rgba(255,255,255,0.1);
+          justify-content: flex-start; /* 靠左对齐，更有大厂后台的规整感 */
+          padding: 16px 24px;
+          background: rgba(255,255,255,0.02);
+          border-radius: 8px;
+          margin-bottom: 20px;
+          border: 1px solid rgba(255,255,255,0.06);
         }
         .essay-content {
-          background: rgba(255,255,255,0.02);
-          border-radius: 12px;
-          padding: 24px;
-          border: 1px solid rgba(255,255,255,0.1);
+          background: transparent; /* 移除外层大背景包裹，直接用卡片排列更清爽 */
+          padding: 0;
         }
+        
+        /* 卡片严整性重构 */
         .article-card {
-          background: rgba(255,255,255,0.05) !important;
-          border: 1px solid rgba(255,255,255,0.1) !important;
-          display: flex;
-          gap: 20px;
-          transition: all 0.3s ease;
+          background: rgba(255,255,255,0.03) !important;
+          border: 1px solid rgba(255,255,255,0.08) !important;
+          border-radius: 8px !important;
+          transition: all 0.25s ease;
+        }
+        .article-card :global(.ant-card-body) {
+          padding: 24px !important;
         }
         .article-card:hover {
           border-color: rgba(78, 205, 196, 0.4) !important;
+          background: rgba(255,255,255,0.05) !important;
         }
+        
+        /* 内层两栏 Flex */
+        .card-wrapper {
+          display: flex;
+          align-items: stretch; /* 让序号与右侧内容等高 */
+          gap: 24px;
+          width: 100%;
+        }
+        
+        /* 序号样式扁平规整化 */
         .card-index {
           flex-shrink: 0;
-          width: 48px;
-          height: 48px;
-          background: linear-gradient(135deg, #4ecdc4, #45b7aa);
-          border-radius: 8px;
+          width: 44px;
+          height: 44px;
+          border: 1px solid rgba(78, 205, 196, 0.3);
+          border-radius: 6px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: bold;
-          font-size: 1.2em;
-          color: #fff;
+          font-family: monospace;
+          font-weight: 600;
+          font-size: 1.1em;
+          color: #4ecdc4;
+          background: rgba(78, 205, 196, 0.05);
         }
+        
+        /* 内容区标准三轴对齐 */
         .card-body {
           flex: 1;
           min-width: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between; /* 撑开上下空间 */
         }
+        
+        /* 头部：标题与按钮分立两侧 */
         .card-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 12px;
-          gap: 8px;
+          margin-bottom: 10px;
+          gap: 16px;
         }
-        .card-header h4 {
-          color: #fff !important;
+        .article-title {
+          color: #f0f0f0 !important;
           margin: 0 !important;
+          font-size: 16px !important;
+          font-weight: 500 !important;
           flex: 1;
           min-width: 0;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .card-header .ant-btn-link {
+        .read-more-btn {
+          color: #4ecdc4 !important;
+          font-size: 13px;
+          padding: 0 !important;
+          height: auto !important;
           flex-shrink: 0;
-          padding: 0;
-          height: auto;
-          white-space: nowrap;
+        }
+        .read-more-btn:hover {
+          color: #45b7aa !important;
+        }
+        
+        /* 内容体：单行省略截断，消灭高度落差 */
+        .card-text-container {
+          margin-bottom: 14px;
         }
         .card-text {
-          color: #d0d0d0 !important;
+          color: #aaa !important;
+          font-size: 14px;
+          line-height: 1.6;
           display: block;
-          line-height: 1.8;
-          margin-bottom: 12px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap; /* 限制单行，如需两行可改为 -webkit-line-clamp */
+        }
+        
+        /* 尾部：严格吸底 */
+        .card-footer {
+          display: flex;
+          align-items: center;
+          margin-top: auto; /* 核心：将其推至盒子最底部 */
         }
         .card-date {
-          color: #888 !important;
+          color: #555 !important;
+          font-size: 12px;
         }
+        
         .loading {
           display: flex;
           justify-content: center;
-          padding: 60px;
+          padding: 80px 0;
         }
         .pagination {
           display: flex;
           justify-content: center;
-          margin-top: 32px;
+          margin-top: 24px;
+          padding: 16px 0;
         }
+        
+        /* 移动端响应式平滑回退 */
         @media (max-width: 600px) {
-          .article-card {
+          .search-box {
+            padding: 12px;
+          }
+          .search-space {
+            width: 100%;
             flex-direction: column;
+            align-items: stretch;
+          }
+          .search-space > .ant-space-item {
+            width: 100% !important;
+          }
+          .search-space .ant-input-search, 
+          .search-space .ant-picker {
+            width: 100% !important;
+          }
+          .card-wrapper {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
           }
           .card-index {
-            width: 40px;
-            height: 40px;
-            font-size: 1em;
+            width: 36px;
+            height: 24px;
+            font-size: 0.9em;
+          }
+          .card-header {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .read-more-btn {
+            margin-top: 2px;
           }
         }
       `}</style>
