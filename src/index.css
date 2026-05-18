@@ -2,25 +2,19 @@
 @import './assets/css/main.css';
 @import './assets/css/noscript.css';
 
-/* Move page content up */
-#main {
-    padding-top: 0em;
-}
-
-/* Title closer to top */
-.inner>header h1 {
-    padding-top: 0;
-}
-
-/* Page background with black horizontal lines */
+/* Antd dark theme support */
 body {
-    /* background-image: repeating-linear-gradient(
-    0deg,
-    #000 0px,
-    #000 1px,
-    transparent 1px,
-    transparent 180px
-  ); */
-    /* background-image: url('/images/picture/上云下路.jpg'); */
-    background-color: #f6f6f6;
+  background-color: #14141e;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Override main padding for antd layout */
+#main {
+  padding: 0;
+}
+
+/* Antd layout fix */
+.ant-layout {
+  background: #14141e !important;
 }

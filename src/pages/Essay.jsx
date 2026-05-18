@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react'
+import { Card, Input, Button, Pagination, Spin, Empty, Typography, Row, Col } from 'antd'
+
+const { Title, Text } = Typography
 
 const mockArticles = [
   { id: 1, title: '露坠荷叶碎成星', content: '露坠荷叶碎成星，风过松林叠作鸣。蛛丝缠尽飞虫影，浮萍聚散总无名。', date: '2025-05-01' },
@@ -57,405 +60,188 @@ function Essay() {
   }, [currentPage, searchDate])
 
   const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page)
-      const articleList = document.querySelector('.article-list')
-      if (articleList) {
-        articleList.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }
+    setCurrentPage(page)
+    document.querySelector('.essay-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <div className="inner essay-page">
-      <header className="page-header">
-        <h1 style={{
-          backgroundImage: 'url("/images/banner/雕塑.png")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}>我的文章</h1>
-      </header>
-
-      <div className="search-box">
-        <div className="search-inner">
-          <img src="/images/日期.svg" alt="日历" className="date-icon" />
-          <input
-            type="month"
-            value={searchDate}
-            onChange={(e) => { setSearchDate(e.target.value); setCurrentPage(1); }}
-          />
-          {searchDate && (
-            <button className="clear-btn" onClick={() => { setSearchDate(''); setCurrentPage(1); }}>
-              ✕
-            </button>
-          )}
-        </div>
+    <div className="essay-page">
+      <div className="page-header">
+        <Title level={2} className="page-title">我的文章</Title>
+        <Text className="page-subtitle">以文会友，以诗言志</Text>
       </div>
 
-      {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          <span>加载中...</span>
-        </div>
-      ) : (
-        <>
-          <div className="article-list">
+      <div className="search-box">
+        <Input.Search
+          type="month"
+          placeholder="选择月份筛选"
+          value={searchDate}
+          onChange={(e) => { setSearchDate(e.target.value); setCurrentPage(1); }}
+          allowClear
+          onClear={() => { setSearchDate(''); setCurrentPage(1); }}
+          style={{ width: 220 }}
+        />
+      </div>
+
+      <div className="essay-content">
+        {loading ? (
+          <div className="loading">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <>
             {articles.length > 0 ? (
-              articles.map((article, index) => (
-                <article key={article.id} className="article-card" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className="card-index">{String(index + 1 + (currentPage - 1) * 5).padStart(2, '0')}</div>
-                  <div className="card-content">
-                    <div className="card-header">
-                      <h2>{article.title}</h2>
-                      <a href={`/article/${article.id}`} className="read-link">
-                        <span>阅读全文</span>
-                        <i>→</i>
-                      </a>
-                    </div>
-                    <p className="card-text">{article.content}</p>
-                    <div className="card-footer">
-                      <span className="card-date">📆 {article.date}</span>
-                    </div>
-                  </div>
-                </article>
-              ))
+              <Row gutter={[16, 16]}>
+                {articles.map((article, index) => (
+                  <Col xs={24} key={article.id}>
+                    <Card className="article-card" hoverable>
+                      <div className="card-index">{String(index + 1 + (currentPage - 1) * 5).padStart(2, '0')}</div>
+                      <div className="card-body">
+                        <div className="card-header">
+                          <Title level={4}>{article.title}</Title>
+                          <Button type="link" href={`/article/${article.id}`}>
+                            阅读全文 →
+                          </Button>
+                        </div>
+                        <Text className="card-text">{article.content}</Text>
+                        <div className="card-footer">
+                          <Text className="card-date">📆 {article.date}</Text>
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
             ) : (
-              <div className="empty-state">
-                <span className="empty-icon">📝</span>
-                <p>暂无文章</p>
+              <Empty description="暂无文章" />
+            )}
+
+            {totalPages > 1 && (
+              <div className="pagination">
+                <Pagination
+                  current={currentPage}
+                  total={totalPages * 5}
+                  pageSize={5}
+                  onChange={handlePageChange}
+                  showSizeChanger={false}
+                />
               </div>
             )}
-          </div>
-
-          {totalPages > 1 && (
-            <nav className="pagination">
-              <button
-                className="page-btn"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                ◀ 上一页
-              </button>
-              <div className="page-numbers">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    className={`page-num ${page === currentPage ? 'active' : ''}`}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-              <button
-                className="page-btn"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                下一页 ▶
-              </button>
-            </nav>
-          )}
-        </>
-      )}
+          </>
+        )}
+      </div>
 
       <style>{`
         .essay-page {
-          min-height: 80vh;
+          max-width: 900px;
+          margin: 0 auto;
         }
-
         .page-header {
           text-align: center;
-          padding: 50px 20px;
+          padding: 40px 20px;
           background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
           border-radius: 12px;
-          margin-bottom: 30px;
-          border: 1px solid rgba(255,255,255,0.15);
+          margin-bottom: 24px;
+          border: 1px solid rgba(255,255,255,0.1);
         }
-        .page-header h1 {
-          font-size: 2.2em;
-          color: #32c9c9;
-          margin: 0 0 10px;
+        .page-title {
+          color: #4ecdc4 !important;
+          margin-bottom: 8px !important;
         }
-        .page-header p {
-          color: #a8a8a8;
-          font-size: 1.1em;
-          margin: 0;
+        .page-subtitle {
+          color: #888 !important;
         }
-
         .search-box {
           display: flex;
           justify-content: center;
           padding: 20px;
-          margin-bottom: 40px;
-          border: 1px solid rgba(255,255,255,0.15);
-          border-radius: 12px;
           background: rgba(255,255,255,0.03);
-        }
-        .search-inner {
-          position: relative;
-          display: flex;
-          align-items: center;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.15);
-          border-radius: 30px;
-          padding: 8px 20px;
-          transition: all 0.3s ease;
-        }
-        .search-inner:focus-within {
-          border-color: #4ecdc4;
-          background: rgba(78,205,196,0.1);
-          box-shadow: 0 0 20px rgba(78,205,196,0.2);
-        }
-        .search-inner .date-icon {
-          width: 20px;
-          height: 20px;
-          margin-right: 12px;
-          opacity: 0.8;
-        }
-        .search-inner input {
-          background: transparent;
-          border: none;
-          color: #ffffff;
-          font-size: 1em;
-          outline: none;
-          min-width: 150px;
-        }
-        .search-inner input::-webkit-calendar-picker-indicator {
-          filter: invert(1);
-          cursor: pointer;
-          opacity: 0.7;
-        }
-        .search-inner .clear-btn {
-          background: rgba(255,255,255,0.15);
-          border: none;
-          color: #fff;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          cursor: pointer;
-          margin-left: 12px;
-          font-size: 0.8em;
-          transition: all 0.2s;
-        }
-        .search-inner .clear-btn:hover {
-          background: rgba(255,255,255,0.3);
-        }
-
-        .article-list {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 25px;
-          border: 1px solid rgba(255,255,255,0.15);
           border-radius: 12px;
+          margin-bottom: 24px;
+          border: 1px solid rgba(255,255,255,0.1);
+        }
+        .essay-content {
           background: rgba(255,255,255,0.02);
+          border-radius: 12px;
+          padding: 24px;
+          border: 1px solid rgba(255,255,255,0.1);
         }
         .article-card {
+          background: rgba(255,255,255,0.05) !important;
+          border: 1px solid rgba(255,255,255,0.1) !important;
           display: flex;
           gap: 20px;
-          padding: 25px;
-          background: rgba(11, 92, 92, 0.73);
-          border: 1px solid rgba(54, 36, 36, 0.1);
-          border-radius: 12px;
           transition: all 0.3s ease;
-          animation: fadeInUp 0.4s ease-out both;
-        }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
         }
         .article-card:hover {
-          background: rgba(211, 46, 82, 0.64);
-          border-color: rgba(30, 107, 102, 0.49);
-          transform: translateX(5px);
+          border-color: rgba(78, 205, 196, 0.4) !important;
         }
         .card-index {
           flex-shrink: 0;
-          width: 45px;
-          height: 45px;
+          width: 48px;
+          height: 48px;
           background: linear-gradient(135deg, #4ecdc4, #45b7aa);
-          border-radius: 10px;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: bold;
-          font-size: 1.1em;
+          font-size: 1.2em;
           color: #fff;
         }
-        .card-content {
+        .card-body {
           flex: 1;
           min-width: 0;
         }
         .card-header {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
-          gap: 15px;
-          margin-bottom: 12px;
-        }
-        .card-header h2 {
-          color: #ffffff;
-          font-size: 1.3em;
-          margin: 0;
-          line-height: 1.4;
-        }
-        .read-link {
-          flex-shrink: 0;
-          display: flex;
           align-items: center;
-          gap: 5px;
-          padding: 6px 14px;
-          background: linear-gradient(135deg, #4ecdc4, #45b7aa);
-          color: #fff;
-          text-decoration: none;
-          border-radius: 20px;
-          font-size: 0.85em;
-          transition: all 0.2s ease;
+          margin-bottom: 12px;
+          gap: 8px;
         }
-        .read-link:hover {
-          transform: translateX(3px);
-          box-shadow: 0 4px 15px rgba(78,205,196,0.4);
+        .card-header h4 {
+          color: #fff !important;
+          margin: 0 !important;
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
-        .read-link i {
-          font-style: normal;
-          transition: transform 0.2s;
-        }
-        .read-link:hover i {
-          transform: translateX(3px);
+        .card-header .ant-btn-link {
+          flex-shrink: 0;
+          padding: 0;
+          height: auto;
+          white-space: nowrap;
         }
         .card-text {
-          color: #d0d0d0;
-          font-size: 0.95em;
+          color: #d0d0d0 !important;
+          display: block;
           line-height: 1.8;
-          margin: 0 0 15px;
-        }
-        .card-footer {
-          display: flex;
-          align-items: center;
+          margin-bottom: 12px;
         }
         .card-date {
-          color: #888;
-          font-size: 0.85em;
+          color: #888 !important;
         }
-
         .loading {
           display: flex;
-          flex-direction: column;
-          align-items: center;
           justify-content: center;
           padding: 60px;
-          color: #888;
         }
-        .spinner {
-          width: 40px;
-          height: 40px;
-          border: 3px solid rgba(255,255,255,0.1);
-          border-top-color: #4ecdc4;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-          margin-bottom: 15px;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-          text-align: center;
-          padding: 80px 20px;
-          color: #666;
-        }
-        .empty-icon {
-          font-size: 3em;
-          display: block;
-          margin-bottom: 15px;
-        }
-
         .pagination {
           display: flex;
           justify-content: center;
-          align-items: center;
-          gap: 15px;
-          margin: 50px 0;
-          flex-wrap: wrap;
+          margin-top: 32px;
         }
-        .page-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 10px 20px;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.15);
-          color: #e0e0e0;
-          border-radius: 25px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 0.95em;
-          line-height: 1;
-        }
-        .page-btn:hover:not(:disabled) {
-          background: rgba(78,205,196,0.2);
-          border-color: #4ecdc4;
-          color: #fff;
-        }
-        .page-btn:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
-        .page-numbers {
-          display: flex;
-          gap: 8px;
-        }
-        .page-num {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
-          color: #b0b0b0;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 0.95em;
-          line-height: 1;
-        }
-        .page-num:hover {
-          background: rgba(255,255,255,0.15);
-          color: #fff;
-        }
-        .page-num.active {
-          background: linear-gradient(135deg, #4ecdc4, #45b7aa);
-          border-color: transparent;
-          color: #fff;
-        }
-
         @media (max-width: 600px) {
           .article-card {
             flex-direction: column;
-            gap: 15px;
           }
           .card-index {
-            width: 36px;
-            height: 36px;
-            font-size: 0.95em;
-          }
-          .card-header {
-            flex-direction: column;
-            gap: 10px;
-          }
-          .read-link {
-            align-self: flex-start;
-          }
-          .page-numbers {
-            display: none;
+            width: 40px;
+            height: 40px;
+            font-size: 1em;
           }
         }
       `}</style>
