@@ -33,7 +33,7 @@ function Layout() {
         <header id="header">
           <div className="inner">
             <Link to="/" className="logo">
-              <span className="symbol"><img src="/images/logo.svg" alt="" /></span>
+              <span className="symbol"><img src="/images/app_icon.ico" alt="" /></span>
               <span className="title">公子求雨</span>
             </Link>
             <nav>
