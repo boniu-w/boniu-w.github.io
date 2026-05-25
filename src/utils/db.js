@@ -1,141 +1,69 @@
-const DB_NAME = 'boniuBlog'
-const DB_VERSION = 1
+import Dexie from 'dexie'
 
-// 打开/初始化数据库
-const openDB = () => {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
+// 定义数据库
+const db = new Dexie('boniuBlog')
 
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result
-      if (!db.objectStoreNames.contains('articles')) {
-        const store = db.createObjectStore('articles', { keyPath: 'id', autoIncrement: true })
-        store.createIndex('date', 'date', { unique: false })
-      }
-    }
-
-    request.onsuccess = (event) => {
-      resolve(event.target.result)
-    }
-
-    request.onerror = (event) => {
-      reject(event.target.error)
-    }
-  })
-}
+// Schema：articles 表，id 为主键自增，date 上建索引
+db.version(1).stores({
+  articles: '++id, date'
+})
 
 // 添加单篇文章
-const addArticle = async (article) => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readwrite')
-    const store = tx.objectStore('articles')
-    const request = store.add(article)
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  })
-}
+const addArticle = (article) => db.articles.add(article)
 
-// 批量导入（用于初始化数据）
-const addArticles = async (articles) => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readwrite')
-    const store = tx.objectStore('articles')
-    articles.forEach(a => store.add(a))
-    tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
-  })
-}
+// 批量导入
+const addArticles = (articles) => db.articles.bulkAdd(articles)
 
 // 获取所有文章
-const getAllArticles = async () => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readonly')
-    const store = tx.objectStore('articles')
-    const request = store.getAll()
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  })
-}
+const getAllArticles = () => db.articles.toArray()
 
 // 根据 ID 获取文章
-const getArticleById = async (id) => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readonly')
-    const store = tx.objectStore('articles')
-    const request = store.get(Number(id))
-    request.onsuccess = () => resolve(request.result || null)
-    request.onerror = () => reject(request.error)
-  })
-}
+const getArticleById = (id) => db.articles.get(Number(id))
 
 // 根据日期范围获取文章
-const getArticlesByDate = async (datePrefix) => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readonly')
-    const store = tx.objectStore('articles')
-    const index = store.index('date')
-    const range = IDBKeyRange.bound(datePrefix, datePrefix + '\uffff')
-    const request = index.getAll(range)
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  })
-}
+const getArticlesByDate = (datePrefix) =>
+  db.articles
+    .where('date')
+    .between(datePrefix, datePrefix + '\uffff', true, true)
+    .toArray()
 
 // 获取文章总数
-const getArticleCount = async () => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readonly')
-    const store = tx.objectStore('articles')
-    const request = store.count()
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  })
-}
+const getArticleCount = () => db.articles.count()
 
 // 更新文章
-const updateArticle = async (article) => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readwrite')
-    const store = tx.objectStore('articles')
-    const request = store.put(article)
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  })
-}
+const updateArticle = (article) => db.articles.put(article)
 
 // 删除文章
-const deleteArticle = async (id) => {
-  const db = await openDB()
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('articles', 'readwrite')
-    const store = tx.objectStore('articles')
-    const request = store.delete(Number(id))
-    request.onsuccess = () => resolve()
-    request.onerror = () => reject(request.error)
-  })
-}
+const deleteArticle = (id) => db.articles.delete(Number(id))
 
-// 检查数据库是否已初始化（是否有数据）
+// 检查是否已有数据
 const isDataInitialized = async () => {
   const count = await getArticleCount()
   return count > 0
 }
 
-// 初始化种子数据
+// 从 JSON 文件同步数据到 IndexedDB（仅在本地无数据时拉取）
+const syncFromJSON = async (jsonUrl) => {
+  if (await isDataInitialized()) return
+
+  try {
+    const response = await fetch(jsonUrl)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const articles = await response.json()
+    await addArticles(articles)
+  } catch (error) {
+    console.error('从 JSON 同步数据失败:', error)
+    throw error
+  }
+}
+
+// 初始化种子数据（仅首次写入，保留兼容旧用法）
 const seedArticles = async (articles) => {
   if (await isDataInitialized()) return
   await addArticles(articles)
 }
 
 export {
-  openDB,
   addArticle,
   addArticles,
   getAllArticles,
@@ -144,6 +72,7 @@ export {
   getArticleCount,
   updateArticle,
   deleteArticle,
+  syncFromJSON,
   seedArticles,
   isDataInitialized
 }
